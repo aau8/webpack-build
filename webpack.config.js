@@ -41,22 +41,41 @@ export default {
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
       filename: './css/style.css'
-    })
+    }),
   ],
   module: {
       rules: [
+        {
+          test: /\.m?js$/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
         // HTML
         {
           test: /\.html$/i,
-          use: 'html-loader'
+          loader: 'html-loader',
+          options: {
+              minimize: false,
+          }
         },
         // CSS
         {
           test: /\.(s[ac]ss|css)$/i,
           use: [
             MiniCssExtractPlugin.loader,
-            'css-loader', 
-            'sass-loader'
+            'css-loader',
+            {
+              loader: 'postcss-loader',
+              options: {
+                postcssOptions: {
+                  plugins: [
+                    'autoprefixer'
+                  ],
+                },
+              }
+            },
+            'sass-loader',
           ]
         },
         // Изображения
@@ -72,6 +91,26 @@ export default {
         // Шрифты
         {
           test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/i,
+          type: 'asset/resource',
+          generator: {
+            filename: content => {
+              return content.filename.replace('src/', '')
+            },
+          }
+        },
+        // Видео
+        {
+          test: /\.(mp4|mp3)$/i,
+          type: 'asset/resource',
+          generator: {
+            filename: content => {
+              return content.filename.replace('src/', '')
+            },
+          }
+        },
+        // JSON файлы
+        {
+          test: /\.(json)$/i,
           type: 'asset/resource',
           generator: {
             filename: content => {
